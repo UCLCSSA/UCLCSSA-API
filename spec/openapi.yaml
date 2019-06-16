@@ -24,8 +24,6 @@ info:
 tags:
   - name: Posts
     description: Operations for user posts (could be used for post feed).
-  - name: Images
-    description: Operations for uploaded images.
 servers:
   - url: 'https://www.uclcssa.com/api'
 
@@ -49,8 +47,7 @@ paths:
           description: Starting post `id` to start fetch from (inclusive).
           required: false
           schema:
-            type: integer
-            minimum: 1
+            $ref: '#/components/schemas/Uuid'
         - name: limit
           in: query
           description: Number of posts to return starting from `id`.
@@ -86,8 +83,7 @@ paths:
           description: Target post `id`.
           required: true
           schema:
-            type: integer
-            minimum: 1
+            $ref: '#/components/schemas/Uuid'
       security:
         - main_auth:
             - 'read:post'
@@ -102,54 +98,6 @@ paths:
           description: Access forbidden
         '404':
           description: Post not found or no longer available
-
-  '/images/{id}/{timestamp}':
-    get:
-      tags:
-        - Images
-      summary: Get image by user ID and timestamp (as file name).
-      parameters:
-        - name: id
-          in: path
-          description: Image uploader (owner).
-          required: true
-          schema:
-            type: integer
-            minimum: 1
-        - name: timestamp
-          in: path
-          description: Image timestamp (file name).
-          required: true
-          schema:
-            type: integer
-            minimum: 0
-      security:
-        - main_auth:
-          - 'read:image'
-      responses:
-        '200':
-          description: Success
-          content:
-            image/gif:
-              schema:
-                description: Returns a GIF
-                type: string
-                format: binary
-            image/jpeg:
-              schema:
-                description: Returns a JPEG
-                type: string
-                format: binary
-            image/png:
-              schema:
-                description: Returns a PNG
-                type: string
-                format: binary
-            image/tiff:
-              schema:
-                description: Returns a TIFF
-                type: string
-                format: binary
 
 # An object to hold reusable parts that can be used across the spec
 components:
@@ -169,9 +117,7 @@ components:
       type: object
       properties:
         id:
-          description: Post unique identifier
-          type: integer
-          example: 123
+          $ref: '#/components/schemas/Uuid'
         author:
           $ref: '#/components/schemas/User'
         time:
@@ -182,7 +128,9 @@ components:
           description: Images contained within post
           type: array
           items:
-            $ref: '#/components/schemas/Image'
+            description: Image URL
+            type: string
+            minLength: 1
         likedBy:
           description: Ids of users who liked the post
           type: array
@@ -209,14 +157,11 @@ components:
       type: object
       properties:
         id:
-          description: Unique identifier for the user
-          type: integer
-          minLength: 1
+          $ref: '#/components/schemas/Uuid'
         email:
           $ref: '#/components/schemas/Email'
         avatar:
-          description: URL to user's avatar
-          type: string
+          $ref: '#/components/schemas/Avatar'
         likedPosts:
           description: Ids of posts which the user liked
           type: array
@@ -225,23 +170,23 @@ components:
             minimum: 1
       required:
         - id
+        - likedPosts
 
     Email:
       description: Email address
       type: string
       minLength: 4
       example: john.smith@example.com
-
-    Image:
-      description: |
-        Upon uploading the image to the server, the image file is renamed to the
-        format of `{userId}-{timestamp}.{ext}`. This allows us, if needed, to
-        wipe all of the data of a user should he or she desire to do so.
-      type: object
-      properties:
-        fileName:
-          type: string
-          minLength: 3
+    
+    Avatar:
+      description: URL to user's avatar
+      type: string
+      format: uri
+    
+    Uuid:
+      description: Unique identifier
+      type: integer
+      minimum: 1
 
   # Security scheme definitions that can be used across the specification.
   securitySchemes:
