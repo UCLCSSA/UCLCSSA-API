@@ -28,8 +28,8 @@ paths:
       summary: Get a collection of posts (a feed).
       description: |
         Retrieves a collection of posts, can be used to build a feed. By default
-        only the most recent 20 posts are returned, unless `offset` and 
-        `limit` is specified. Note that the maximum posts returned at 
+        only the most recent 20 posts are returned, unless `offset` and
+        `limit` is specified. Note that the maximum posts returned at
         once is capped at 100.
       operationId: getPosts
       parameters:
@@ -179,6 +179,7 @@ components:
           example: accomodation
         content:
           description: Post content
+          type: string
       required:
         - id
         - author
@@ -186,6 +187,7 @@ components:
         - images
         - likedBy
         - category
+        - content
     User:
       type: object
       properties:
@@ -214,13 +216,12 @@ components:
     Image:
       description: |
         Upon uploading the image to the server, the image file is renamed to the
-        format of `{userId}-{timestamp}.{ext}`. This allows us, if needed, to 
+        format of `{userId}-{timestamp}.{ext}`. This allows us, if needed, to
         wipe all of the data of a user should he or she desire to do so.
       type: object
       properties:
         fileName:
           type: string
-          pattern: '^\d+-\d+\.[a-zA-Z0-9]+$'
           minLength: 3
   securitySchemes:
     main_auth:
