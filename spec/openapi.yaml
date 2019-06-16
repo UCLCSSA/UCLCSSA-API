@@ -6,8 +6,8 @@ info:
 
   termsOfService: 'https://github.com/UCLCSSA/UCLCSSA-API/blob/master/TOS.md'
   license:
-    name: 'GPL-3.0'
-    url: 'https://www.gnu.org/licenses/gpl-3.0.en.html'
+    name: 'MIT'
+    url: 'https://github.com/UCLCSSA/UCLCSSA-API/blob/master/LICENSE'
   x-logo:
     # TODO: replace logo with custom logo
     url: 'https://apis.guru/openapi-template/logo.png'
@@ -177,12 +177,12 @@ components:
       type: string
       minLength: 4
       example: john.smith@example.com
-    
+
     Avatar:
       description: URL to user's avatar
       type: string
       format: uri
-    
+
     Uuid:
       description: Unique identifier
       type: integer
