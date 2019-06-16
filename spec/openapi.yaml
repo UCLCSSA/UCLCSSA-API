@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   version: '0.1.0'
-  
-  title: 'UCLCSSA'
+
+  title: UCLCSSA
 
   termsOfService: 'https://github.com/UCLCSSA/UCLCSSA-API/blob/master/TOS.md'
   license:
@@ -11,11 +11,11 @@ info:
   x-logo:
     # TODO: replace logo with custom logo
     url: 'https://apis.guru/openapi-template/logo.png'
-  
+
   # Describe your API here, you can use GFM (https://guides.github.com/features/mastering-markdown) here
   description: |
     This document describes the API provided for the UCLCSSA WeChat app.
-    
+
     # OpenAPI Specification
     UCLCSSA's API is intended to conform to OpenAPI 3.0.
 
@@ -30,18 +30,17 @@ servers:
   - url: 'https://www.uclcssa.com/api'
 
 # Holds the relative paths to the individual endpoints. The path is appended to the
-# basePath in order to construct the full URL. 
+# basePath in order to construct the full URL.
 paths:
   '/posts':
-  
     get:
       tags:
         - Posts
       summary: Get a collection of posts (a feed).
       description: |
         Retrieves a collection of posts, can be used to build a feed. By default
-        only the most recent 20 posts are returned, unless `offset` and 
-        `limit` is specified. Note that the maximum posts returned at 
+        only the most recent 20 posts are returned, unless `offset` and
+        `limit` is specified. Note that the maximum posts returned at
         once is capped at 100.
       operationId: getPosts
       parameters:
@@ -74,7 +73,6 @@ paths:
           description: Access forbidden
 
   '/posts/{id}':
-  
     get:
       tags:
         - Posts
@@ -106,7 +104,6 @@ paths:
           description: Post not found or no longer available
 
   '/images/{id}/{timestamp}':
-  
     get:
       tags:
         - Images
@@ -126,7 +123,7 @@ paths:
           schema:
             type: integer
             minimum: 0
-      security: 
+      security:
         - main_auth:
           - 'read:image'
       responses:
@@ -165,9 +162,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Post'
-      required: 
+      required:
         - data
-    
+
     Post:
       type: object
       properties:
@@ -198,14 +195,16 @@ components:
           example: accomodation
         content:
           description: Post content
-      required: 
+          type: string
+      required:
         - id
         - author
         - time
         - images
         - likedBy
         - category
-          
+        - content
+
     User:
       type: object
       properties:
@@ -221,30 +220,29 @@ components:
         likedPosts:
           description: Ids of posts which the user liked
           type: array
-          items: 
+          items:
             type: integer
             minimum: 1
-      required: 
+      required:
         - id
-    
+
     Email:
       description: Email address
       type: string
       minLength: 4
       example: john.smith@example.com
-    
+
     Image:
       description: |
         Upon uploading the image to the server, the image file is renamed to the
-        format of `{userId}-{timestamp}.{ext}`. This allows us, if needed, to 
+        format of `{userId}-{timestamp}.{ext}`. This allows us, if needed, to
         wipe all of the data of a user should he or she desire to do so.
       type: object
       properties:
         fileName:
           type: string
-          pattern: '^\d+-\d+\.[a-zA-Z0-9]+$'
           minLength: 3
-  
+
   # Security scheme definitions that can be used across the specification.
   securitySchemes:
     main_auth:
