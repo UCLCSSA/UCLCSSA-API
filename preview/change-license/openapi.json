@@ -5,8 +5,8 @@
     "title": "UCLCSSA",
     "termsOfService": "https://github.com/UCLCSSA/UCLCSSA-API/blob/master/TOS.md",
     "license": {
-      "name": "GPL-3.0",
-      "url": "https://www.gnu.org/licenses/gpl-3.0.en.html"
+      "name": "MIT",
+      "url": "https://github.com/UCLCSSA/UCLCSSA-API/blob/master/LICENSE"
     },
     "x-logo": {
       "url": "https://apis.guru/openapi-template/logo.png"
