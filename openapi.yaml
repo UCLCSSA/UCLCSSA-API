@@ -1,213 +1,189 @@
 openapi: 3.0.0
 info:
-  version: 1.0.0
-  title: Example.com
-  termsOfService: 'https://example.com/terms/'
-  contact:
-    email: contact@example.com
-    url: 'http://example.com/contact'
+  version: 0.1.0
+  title: UCLCSSA
+  termsOfService: 'https://github.com/UCLCSSA/UCLCSSA-API/blob/master/TOS.md'
   license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    name: GPL-3.0
+    url: 'https://www.gnu.org/licenses/gpl-3.0.en.html'
   x-logo:
     url: 'https://apis.guru/openapi-template/logo.png'
   description: |
-    This is an **example** API to demonstrate features of OpenAPI specification
-    # Introduction
-    This specification is intended to to be a good starting point for describing your API in 
-    [OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md).
-    It also demonstrates features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo) tool and 
-    [ReDoc](https://github.com/Rebilly/ReDoc) documentation engine. So beyond the standard OpenAPI syntax we use a few 
-    [vendor extensions](https://github.com/Rebilly/ReDoc/blob/master/docs/redoc-vendor-extensions.md).
+    This document describes the API provided for the UCLCSSA WeChat app.
 
     # OpenAPI Specification
-    The goal of The OpenAPI Specification is to define a standard, language-agnostic interface to REST APIs which
-    allows both humans and computers to discover and understand the capabilities of the service without access to source
-    code, documentation, or through network traffic inspection. When properly defined via OpenAPI, a consumer can 
-    understand and interact with the remote service with a minimal amount of implementation logic. Similar to what
-    interfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.
-externalDocs:
-  description: Find out how to create Github repo for your OpenAPI spec.
-  url: 'https://github.com/Rebilly/generator-openapi-repo'
+    UCLCSSA's API is intended to conform to OpenAPI 3.0.
 tags:
-  - name: Echo
-    description: Example echo operations
-  - name: User
-    description: Operations about user
+  - name: Posts
+    description: Operations for user posts (could be used for post feed).
 servers:
-  - url: 'http://example.com/api/v1'
-  - url: 'https://example.com/api/v1'
+  - url: 'https://www.uclcssa.com/api'
 paths:
-  '/users/{username}':
-    parameters:
-      - name: pretty_print
-        in: query
-        description: Pretty print response
-        schema:
-          type: boolean
+  /posts:
     get:
       tags:
-        - User
-      summary: Get user by user name
+        - Posts
+      summary: Get a collection of posts (a feed).
       description: |
-        Some description of the operation. 
-        You can use `markdown` here.
-      operationId: getUserByName
+        Retrieves a collection of posts, can be used to build a feed. By default
+        only the most recent 20 posts are returned, unless `offset` and
+        `limit` is specified. Note that the maximum posts returned at
+        once is capped at 100.
+      operationId: getPosts
       parameters:
-        - name: username
-          in: path
-          description: The name that needs to be fetched
-          required: true
-          schema:
-            type: string
-        - name: with_email
+        - name: offset
           in: query
-          description: Filter users without email
+          description: Starting post `id` to start fetch from (inclusive).
+          required: false
           schema:
-            type: boolean
+            $ref: '#/components/schemas/Uuid'
+        - name: limit
+          in: query
+          description: Number of posts to return starting from `id`.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
       security:
         - main_auth:
-            - 'read:users'
-        - api_key: []
+            - 'read:posts'
       responses:
         '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-              example:
-                username: user1
-                email: user@example.com
+                $ref: '#/components/schemas/Posts'
         '403':
-          description: Forbidden
-        '404':
-          description: User not found
-    put:
+          description: Access forbidden
+  '/posts/{id}':
+    get:
       tags:
-        - User
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
+        - Posts
+      summary: Get post by id.
+      description: |
+        Retrieves a post with a given `id`.
+      operationId: getPostById
       parameters:
-        - name: username
+        - name: id
           in: path
-          description: The name that needs to be updated
+          description: Target post `id`.
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/Uuid'
       security:
         - main_auth:
-            - 'write:users'
+            - 'read:post'
       responses:
         '200':
-          description: OK
-        '400':
-          description: Invalid user supplied
-        '404':
-          description: User not found
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/User'
-        description: Updated user object
-        required: true
-  /echo:
-    post:
-      tags:
-        - Echo
-      summary: Echo test
-      description: Receive the exact message you've sent
-      operationId: echo
-      security:
-        - api_key: []
-        - basic_auth: []
-      responses:
-        '200':
-          description: OK
-          headers:
-            X-Rate-Limit:
-              description: calls per hour allowed by the user
-              schema:
-                type: integer
-                format: int32
-            X-Expires-After:
-              $ref: '#/components/headers/ExpiresAfter'
+          description: Success
           content:
             application/json:
               schema:
-                type: string
-              examples:
-                response:
-                  value: Hello world!
-            application/xml:
-              schema:
-                type: string
-            text/csv:
-              schema:
-                type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-              example: Hello world!
-          application/xml:
-            schema:
-              type: string
-              example: Hello world!
-        description: Echo payload
-        required: true
+                $ref: '#/components/schemas/Post'
+        '403':
+          description: Access forbidden
+        '404':
+          description: Post not found or no longer available
 components:
   schemas:
-    Email:
-      description: User email address
-      type: string
-      format: test
-      example: john.smith@example.com
+    Posts:
+      type: object
+      properties:
+        data:
+          description: List of posts
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+      required:
+        - data
+    Post:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        author:
+          $ref: '#/components/schemas/User'
+        time:
+          description: 'Post timestamp (see [RFC3339](https://tools.ietf.org/html/rfc3339))'
+          type: integer
+          minimum: 0
+        images:
+          description: Images contained within post
+          type: array
+          items:
+            description: Image URL
+            type: string
+            minLength: 1
+        likedBy:
+          description: Ids of users who liked the post
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        category:
+          description: Category of post
+          type: string
+          example: accomodation
+        content:
+          description: Post content
+          type: string
+      required:
+        - id
+        - author
+        - time
+        - images
+        - likedBy
+        - category
+        - content
     User:
       type: object
       properties:
-        username:
-          description: User supplied username
-          type: string
-          minLength: 4
-          example: John78
-        firstName:
-          description: User first name
-          type: string
-          minLength: 1
-          example: John
-        lastName:
-          description: User last name
-          type: string
-          minLength: 1
-          example: Smith
+        id:
+          $ref: '#/components/schemas/Uuid'
         email:
           $ref: '#/components/schemas/Email'
-  headers:
-    ExpiresAfter:
-      description: date in UTC when token expires
-      schema:
-        type: string
-        format: date-time
+        avatar:
+          $ref: '#/components/schemas/Avatar'
+        likedPosts:
+          description: Ids of posts which the user liked
+          type: array
+          items:
+            type: integer
+            minimum: 1
+      required:
+        - id
+        - likedPosts
+    Email:
+      description: Email address
+      type: string
+      minLength: 4
+      example: john.smith@example.com
+    Avatar:
+      description: URL to user's avatar
+      type: string
+      format: uri
+    Uuid:
+      description: Unique identifier
+      type: integer
+      minimum: 1
   securitySchemes:
     main_auth:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: 'http://example.com/api/oauth/dialog'
+          authorizationUrl: 'http://www.uclcssa.cn/api/oauth/dialog'
           scopes:
-            'read:users': read users info
+            'read:post': read individual post
+            'write:post': modify or remove individual post
+            'read:posts': read posts
+            'write:posts': modify or remove posts
+            'read:user': read individual user information
+            'write:user': modify or remove individual user information
+            'read:users': read users information
             'write:users': modify or remove users
-    api_key:
-      type: apiKey
-      in: header
-      name: api_key
-    basic_auth:
-      type: http
-      scheme: basic
+            'read:image': read individual image
+            'write:image': modify or remove individual image
+            'read:images': read images
+            'write:images': write images
