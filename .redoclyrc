@@ -1,0 +1,8 @@
+
+apiTitle: UCLCSSA-API
+splitSpec: false
+codeSamples: false
+swaggerUI: true
+travis: true
+repo: UCLCSSA/UCLCSSA-API
+oasVersion: 3.0.0
