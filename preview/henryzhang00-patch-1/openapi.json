@@ -9,7 +9,7 @@
       "url": "https://github.com/UCLCSSA/UCLCSSA-API/blob/master/LICENSE"
     },
     "x-logo": {
-      "url": "https://cloud-minapp-24046.cloud.ifanrusercontent.com/uclcssa-logo.gif"
+      "url": "https://cloud-minapp-24046.cloud.ifanrusercontent.com/uclcssa-logo.gif!/border/500x500/brdcolor/FFFFFFFF"
     },
     "description": "This document describes the API provided for the UCLCSSA WeChat app.\n\n# OpenAPI Specification\nUCLCSSA's API is intended to conform to OpenAPI 3.0.\n"
   },
