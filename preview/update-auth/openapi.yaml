@@ -1,0 +1,189 @@
+openapi: 3.0.0
+info:
+  version: 0.1.0
+  title: UCLCSSA
+  termsOfService: 'https://github.com/UCLCSSA/UCLCSSA-API/blob/master/TOS.md'
+  license:
+    name: MIT
+    url: 'https://github.com/UCLCSSA/UCLCSSA-API/blob/master/LICENSE'
+  x-logo:
+    url: 'https://cloud-minapp-24046.cloud.ifanrusercontent.com/uclcssa-logo.gif!/border/500x500/brdcolor/FFFFFFFF'
+  description: |
+    This document describes the API provided for the UCLCSSA WeChat app.
+
+    # OpenAPI Specification
+    UCLCSSA's API is intended to conform to OpenAPI 3.0.
+tags:
+  - name: Posts
+    description: Operations for user posts (could be used for post feed).
+servers:
+  - url: 'https://www.uclcssa.com/api'
+paths:
+  /posts:
+    get:
+      tags:
+        - Posts
+      summary: Get a collection of posts (a feed).
+      description: |
+        Retrieves a collection of posts, can be used to build a feed. By default
+        only the most recent 20 posts are returned, unless `offset` and
+        `limit` is specified. Note that the maximum posts returned at
+        once is capped at 100.
+      operationId: getPosts
+      parameters:
+        - name: offset
+          in: query
+          description: Starting post `id` to start fetch from (inclusive).
+          required: false
+          schema:
+            $ref: '#/components/schemas/Uuid'
+        - name: limit
+          in: query
+          description: Number of posts to return starting from `id`.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      security:
+        - main_auth:
+            - 'read:posts'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Posts'
+        '403':
+          description: Access forbidden
+  '/posts/{id}':
+    get:
+      tags:
+        - Posts
+      summary: Get post by id.
+      description: |
+        Retrieves a post with a given `id`.
+      operationId: getPostById
+      parameters:
+        - name: id
+          in: path
+          description: Target post `id`.
+          required: true
+          schema:
+            $ref: '#/components/schemas/Uuid'
+      security:
+        - main_auth:
+            - 'read:post'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '403':
+          description: Access forbidden
+        '404':
+          description: Post not found or no longer available
+components:
+  schemas:
+    Posts:
+      type: object
+      properties:
+        data:
+          description: List of posts
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+      required:
+        - data
+    Post:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        author:
+          $ref: '#/components/schemas/User'
+        time:
+          description: 'Post timestamp (see [RFC3339](https://tools.ietf.org/html/rfc3339))'
+          type: integer
+          minimum: 0
+        images:
+          description: Images contained within post
+          type: array
+          items:
+            description: Image URL
+            type: string
+            minLength: 1
+        likedBy:
+          description: Ids of users who liked the post
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        category:
+          description: Category of post
+          type: string
+          example: accomodation
+        content:
+          description: Post content
+          type: string
+      required:
+        - id
+        - author
+        - time
+        - images
+        - likedBy
+        - category
+        - content
+    User:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        email:
+          $ref: '#/components/schemas/Email'
+        avatar:
+          $ref: '#/components/schemas/Avatar'
+        likedPosts:
+          description: Ids of posts which the user liked
+          type: array
+          items:
+            type: integer
+            minimum: 1
+      required:
+        - id
+        - likedPosts
+    Email:
+      description: Email address
+      type: string
+      minLength: 4
+      example: john.smith@example.com
+    Avatar:
+      description: URL to user's avatar
+      type: string
+      format: uri
+    Uuid:
+      description: Unique identifier
+      type: integer
+      minimum: 1
+  securitySchemes:
+    main_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: 'http://www.uclcssa.cn/api/oauth/dialog'
+          scopes:
+            'read:post': read individual post
+            'write:post': modify or remove individual post
+            'read:posts': read posts
+            'write:posts': modify or remove posts
+            'read:user': read individual user information
+            'write:user': modify or remove individual user information
+            'read:users': read users information
+            'write:users': modify or remove users
+            'read:image': read individual image
+            'write:image': modify or remove individual image
+            'read:images': read images
+            'write:images': write images
